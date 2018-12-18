@@ -3,6 +3,7 @@ version: "3.5"
 services:
     game_web:
         build: docker/nginx
+        container_name: game_web
         ports:
             - "80:80"
         volumes:
@@ -26,6 +27,7 @@ services:
 
     game_php:
         build: docker/php
+        container_name: game_php
         volumes:
             - ./app/bin:/var/www/current/bin
             - ./app/config:/var/www/current/config
@@ -45,6 +47,7 @@ services:
 
     game_php_cli:
         build: docker/php-cli
+        container_name: game_php_cli
         environment:
             XDEBUG_CONFIG: "remote_host=192.168.1.101"
         volumes:
@@ -54,9 +57,10 @@ services:
 
     game_db_mysql:
         image: mysql:5.7
+        container_name: game_db_mysql
         environment:
-            MYSQL_USER: promorepublic
-            MYSQL_PASSWORD: promorepublic
+            MYSQL_USER: gameplatform
+            MYSQL_PASSWORD: gameplatform
             MYSQL_ROOT_PASSWORD: root
         ports:
             - "3306:3306"
