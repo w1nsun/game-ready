@@ -1,0 +1,73 @@
+version: "3.5"
+
+services:
+    game_web:
+        build: docker/nginx
+        ports:
+            - "80:80"
+        volumes:
+            - ./app/bin:/var/www/current/bin
+            - ./app/config:/var/www/current/config
+            - ./app/public:/var/www/current/public
+            - ./app/src:/var/www/current/src
+            - ./app/templates:/var/www/current/templates
+            - ./app/tests:/var/www/current/tests
+            - ./app/translations:/var/www/current/translations
+            - ./app/.env:/var/www/current/.env
+            - ./app/composer.json:/var/www/current/composer.json
+            - ./app/composer.lock:/var/www/current/composer.lock
+            - ./app/symfony.lock:/var/www/current/symfony.lock
+            - ./docker/nginx/site.conf:/etc/nginx/conf.d/site.conf
+        environment:
+            XDEBUG_CONFIG: "remote_host=192.168.1.101"
+            APP_DEBUG: "true"
+        links:
+            - "game_php:game_php"
+
+    game_php:
+        build: docker/php
+        volumes:
+            - ./app/bin:/var/www/current/bin
+            - ./app/config:/var/www/current/config
+            - ./app/public:/var/www/current/public
+            - ./app/src:/var/www/current/src
+            - ./app/templates:/var/www/current/templates
+            - ./app/tests:/var/www/current/tests
+            - ./app/translations:/var/www/current/translations
+            - ./app/.env:/var/www/current/.env
+            - ./app/composer.json:/var/www/current/composer.json
+            - ./app/composer.lock:/var/www/current/composer.lock
+            - ./app/symfony.lock:/var/www/current/symfony.lock
+        environment:
+            XDEBUG_CONFIG: "remote_host=192.168.1.101"
+        links:
+            - "game_db_mysql"
+
+    game_php_cli:
+        build: docker/php-cli
+        environment:
+            XDEBUG_CONFIG: "remote_host=192.168.1.101"
+        volumes:
+            - ./app:/var/www/current
+        links:
+            - "game_db_mysql:game_db_mysql"
+
+    game_db_mysql:
+        image: mysql:5.7
+        environment:
+            MYSQL_USER: promorepublic
+            MYSQL_PASSWORD: promorepublic
+            MYSQL_ROOT_PASSWORD: root
+        ports:
+            - "3306:3306"
+
+    game_phpmyadmin:
+        container_name: game_phpmyadmin
+        image: phpmyadmin/phpmyadmin:4.7
+        links:
+            - "game_db_mysql:game_db_mysql"
+        environment:
+            PMA_HOST: game_db_mysql
+            PMA_PORT: 3306
+        ports:
+            - '8383:80'
